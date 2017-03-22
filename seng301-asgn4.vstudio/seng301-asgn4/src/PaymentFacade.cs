@@ -1,12 +1,15 @@
-﻿using System;
+﻿// PaymentFacade
+// provides a payment facade
+// this creates a standardized
+// payment interface for the
+// business logic to connect
+// with
+
+using System;
 using System.Collections.Generic;
 using Frontend4;
 using Frontend4.Hardware;
 
-// in theory, handles different
-// types of payment - presumably
-// they use a card, whatever they
-// pay is converted to coins
 public class PaymentFacade
 {
     private HardwareFacade facade;
@@ -20,6 +23,7 @@ public class PaymentFacade
         coinSlot.CoinAccepted += new EventHandler<CoinEventArgs>(coinAccepted);
     }
 
+    // maps a value to each coin slot
     public void setCoinTypes(Cents[] types)
     {
         coinTypes = new int[types.Length];
@@ -29,11 +33,18 @@ public class PaymentFacade
         }
     }
 
+    // takes any inserted coins into
+    // the machine
     public void acceptCoins()
     {
         facade.CoinReceptacle.StoreCoins();
     }
 
+    // deposits the appropriate change as per
+    // the hardware specifications
+    // returns the value of credit remaining
+    // (i.e. change unable to be made with
+    // available coins)
     public int dispenseChange(int change)
     {
         /* Change Algorithm */
@@ -128,6 +139,8 @@ public class PaymentFacade
         }
         return val;
     }
+
+    // EVENTS //
 
     // triggers an event indicating how much "money" inserted
     // rather than coins
