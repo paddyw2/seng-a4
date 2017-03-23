@@ -1,4 +1,4 @@
-﻿// PaymentFacade
+﻿// Class: PaymentFacade
 // provides a payment facade
 // this creates a standardized
 // payment interface for the
@@ -19,11 +19,13 @@ public class PaymentFacade
     public PaymentFacade(HardwareFacade facade)
     {
         this.facade = facade;
+        // subscribe to coin accepted event
         CoinSlot coinSlot = facade.CoinSlot;
         coinSlot.CoinAccepted += new EventHandler<CoinEventArgs>(coinAccepted);
     }
 
     // maps a value to each coin slot
+    // used in change algorithm
     public void setCoinTypes(Cents[] types)
     {
         coinTypes = new int[types.Length];
@@ -34,12 +36,16 @@ public class PaymentFacade
     }
 
     // takes any inserted coins into
-    // the machine
-    public void acceptCoins()
+    // the machine, or if inserted
+    // money is pre-authorized credit
+    // then the price parameter is used
+    // make a payment
+    public void acceptPayment(int price)
     {
         facade.CoinReceptacle.StoreCoins();
     }
-
+        
+    // Change Algorithm
     // deposits the appropriate change as per
     // the hardware specifications
     // returns the value of credit remaining
@@ -47,7 +53,6 @@ public class PaymentFacade
     // available coins)
     public int dispenseChange(int change)
     {
-        /* Change Algorithm */
         // change algorithm from A1 (slightly modified)
         int val = change;
         int upperBound = val + 1;
@@ -106,7 +111,6 @@ public class PaymentFacade
                     CoinRack[] racks = facade.CoinRacks;
                     // release coin in hardware and in software
                     coinRacks[slotIndex].ReleaseCoin();
-                    Console.WriteLine("Dispensing coin: " + largestCoinVal);
 
                     // if new change value is zero, all change
                     // has been added to the coin change list

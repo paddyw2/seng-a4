@@ -1,9 +1,14 @@
-﻿using System;
+﻿// Class: ProductFacade
+// Provides an interface for
+// accessing product information
+// and controlling product
+// hardware
+
+using System;
 using System.Collections.Generic;
 using Frontend4;
 using Frontend4.Hardware;
-// must subscribe to events, then deposit products
-// also in charge of refilling products
+
 public class ProductFacade
 {
     private HardwareFacade facade;
@@ -11,50 +16,37 @@ public class ProductFacade
 
     public ProductFacade(HardwareFacade facade)
     {
+        // save hardware facade reference
         this.facade = facade;
-
     }
 
     public void Configure(List<ProductKind> products)
     {
+        // updates the product list and
+        // configures the hardware
         productSpecs = products;
         facade.Configure(products);
     }
 
     public int getPrice(int id)
     {
+        // returns a product price by
+        // button id
         return productSpecs[id].Cost.Value;
     }
 
     public int getQuantity(int id)
     {
+        // returns a product quantity
+        // by button id
         ProductRack[] racks = facade.ProductRacks;
         return racks[id].Count;
     }
 
-    public void loadProducts(int id, List<Product> products)
-    {
-        foreach(var product in products)
-        {
-            // load specific product by button id
-        }
-    }
-
     public void dispenseProduct(int id)
     {
+        // dispenses a product by button id
         ProductRack[] racks = facade.ProductRacks;
         racks[id].DispenseProduct();
-    }
-
-    // returns specificed product cost by name
-    public int getProductCost(string productName)
-    {
-        foreach (var product in productSpecs)
-        {
-            if (product.Name.Equals(productName))
-                return product.Cost.Value;
-        }
-
-        return -1;
     }
 }

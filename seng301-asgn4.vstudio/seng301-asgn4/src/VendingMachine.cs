@@ -84,17 +84,15 @@ public class VendingMachine {
         this.commsFacade = new CommunicationFacade(hardwareFacade);
         this.productFacade = new ProductFacade(hardwareFacade);
         this.paymentFacade = new PaymentFacade(hardwareFacade);
+        // pass coin types to payment facade
         this.paymentFacade.setCoinTypes(coinKinds);
+        // create business logic with sub facade references
         this.businessLogic = new BusinessRules(commsFacade, productFacade, paymentFacade);
-
-
-	    /* YOU CAN BUILD AND INSTALL THE HARDWARE HERE */
     }
 
     public void Configure(List<ProductKind> products)
     {
-        Console.WriteLine("Configuring actual vending machine");
+        // configure via business logic
         this.businessLogic.Configure(products);
-        // hardwareFacade.Configure(products);
     }
 }

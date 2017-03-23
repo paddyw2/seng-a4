@@ -1,31 +1,32 @@
-﻿using System;
+﻿// Class: BusinessRules
+// Authorizes and processes
+// vending machine purchases
+// by communicating with and
+// managing sub facades
+
+using System;
 using System.Collections.Generic;
 using Frontend4;
 using Frontend4.Hardware;
 
-// keeps track of product prices, how
-// excess change is dealt with etc.
-// acts as controller class - directs
-// the funds, commication and product
-// facades
 public class BusinessRules
 {
     private CommunicationFacade comms;
     private ProductFacade product;
     private PaymentFacade payment;
-
     private int insertedAmount;
 
     public BusinessRules(CommunicationFacade comms, ProductFacade product, PaymentFacade payment)
     {
+        // save sub facade instances
         this.comms = comms;
         this.product = product;
         this.payment = payment;
         insertedAmount = 0;
 
+        // subscribe to sub facade events
         payment.MoneyInserted += new EventHandler<MoneyEventArgs>(incrementInsertValue);
         comms.ButtonPressed += new EventHandler<ButtonIdEventArgs>(buttonPressed);
-
     }
 
     public void Configure(List<ProductKind> products)
@@ -35,36 +36,40 @@ public class BusinessRules
 
     public void processButtonSelection(int id)
     {
-        // MAIN LOGIC
+        // MAIN LOGIC //
         // takes a button id as argument, and
         // if the selection is valid, then dispenses
         // appropriate product and change
+
+        // get selected product price
         int price = product.getPrice(id);
+        // get selected product quantity
         int productQuantity = product.getQuantity(id);
-        // check if enough money inserted
+        // check if enough money inserted for purchase
         if (insertedAmount >= price && productQuantity > 0)
         {
-            // dispense pop
+            // if selection valid, dispense pop
             product.dispenseProduct(id);
-            payment.acceptCoins();
-            // calculate and dispense change
+            // takes payment into machine
+            payment.acceptPayment(price);
+            // calculate and dispense change if required
             int change = insertedAmount - price;
             int remainingCredit = payment.dispenseChange(change);
-            // reset inserted amount taking into
+            // reset inserted amount, taking into
             // account any credit
             insertedAmount = remainingCredit;
-            Console.WriteLine("Remaining credit: " + remainingCredit);
+            comms.displayMessage("Remaining credit: " + remainingCredit);
         }
         else
         {
             if (productQuantity > 0)
-                Console.WriteLine("Not enough money entered");
+                comms.displayMessage("Not enough money entered");
             else
-                Console.WriteLine("Not enough pop");
+                comms.displayMessage("Not enough products");
         }
     }
 
-    // EVENT LISTENERS
+    // EVENT LISTENERS //
 
     public void incrementInsertValue(object sender, MoneyEventArgs e)
     {
@@ -75,5 +80,4 @@ public class BusinessRules
     {
         processButtonSelection(e.buttonId);
     }
-
 }
